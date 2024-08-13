@@ -24,6 +24,7 @@ app.get("/", (req, res) => {
   res.send("Hello World!~~ 하이용");
 });
 
+// register router
 app.post("/register", async (req, res) => {
   // 회원가입 시 필요한 정보들을 client 에서 가져오면
   // 그걸 DB에 넣어준다.
@@ -42,6 +43,31 @@ app.post("/register", async (req, res) => {
         err: err,
       });
     });
+});
+
+app.post("/login", (req, res) => {
+  // DB에서 입력한 email(id) 찾기
+  User.findOne({ email: req.body.email }, (err, user) => {
+    if (!user) {
+      return res.json({
+        loginSuccess: false,
+        message: "이메일 혹은 비밀번호가 올바른지 확인해주세요",
+      });
+    }
+
+    // DB에 패스워드가 있는지 찾기
+    user.comparePassword(req.body.password, (err, isMatch) => {
+      if (!isMatch) {
+        return res.json({ loginSuccess: false, message: "이메일 혹은 비밀번호가 올바른지 확인해주세요" });
+      }
+
+      // token 생성
+      user.generateToken((err, user) => {
+        //
+      });
+    });
+    //
+  });
 });
 
 app.listen(port, () => console.log(`Example app listening on port ${port}!`));
